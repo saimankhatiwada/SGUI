@@ -1,0 +1,2 @@
+D:\Projects\SGUI\bin\Debug-windows-x86_64\SGUI\SGUI.pdb
+D:\Projects\SGUI\bin-int\Debug-windows-x86_64\SGUI\SGUI.pdb
