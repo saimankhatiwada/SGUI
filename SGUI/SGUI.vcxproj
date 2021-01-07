@@ -98,6 +98,7 @@
     <ClInclude Include="Src\PerformanceVisualizer\RuntimeVisualizer.h" />
     <ClInclude Include="Src\Platform\OpenGl\OpenGlBuffer.h" />
     <ClInclude Include="Src\Platform\OpenGl\OpenGlContext.h" />
+    <ClInclude Include="Src\Platform\OpenGl\OpenGlFrameBuffer.h" />
     <ClInclude Include="Src\Platform\OpenGl\OpenGlRendererAPI.h" />
     <ClInclude Include="Src\Platform\OpenGl\OpenGlShader.h" />
     <ClInclude Include="Src\Platform\OpenGl\OpenGlTexture.h" />
@@ -105,6 +106,7 @@
     <ClInclude Include="Src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="Src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="Src\Renderer\Buffer.h" />
+    <ClInclude Include="Src\Renderer\FrameBuffer.h" />
     <ClInclude Include="Src\Renderer\GraphicsContext.h" />
     <ClInclude Include="Src\Renderer\OrthographicCamera.h" />
     <ClInclude Include="Src\Renderer\OrthographicCameraController.h" />
@@ -551,6 +553,7 @@
   <ItemGroup>
     <ClCompile Include="Src\Platform\OpenGl\OpenGlBuffer.cpp" />
     <ClCompile Include="Src\Platform\OpenGl\OpenGlContext.cpp" />
+    <ClCompile Include="Src\Platform\OpenGl\OpenGlFrameBuffer.cpp" />
     <ClCompile Include="Src\Platform\OpenGl\OpenGlRendererAPI.cpp" />
     <ClCompile Include="Src\Platform\OpenGl\OpenGlShader.cpp" />
     <ClCompile Include="Src\Platform\OpenGl\OpenGlTexture.cpp" />
@@ -558,6 +561,7 @@
     <ClCompile Include="Src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="Src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="Src\Renderer\Buffer.cpp" />
+    <ClCompile Include="Src\Renderer\FrameBuffer.cpp" />
     <ClCompile Include="Src\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="Src\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="Src\Renderer\RenderComand.cpp" />
@@ -589,4 +593,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>
+</Project> 

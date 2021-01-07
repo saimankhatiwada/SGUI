@@ -66,6 +66,9 @@
     <ClInclude Include="Src\Platform\OpenGl\OpenGlContext.h">
       <Filter>Src\Platform\OpenGl</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Platform\OpenGl\OpenGlFrameBuffer.h">
+      <Filter>Src\Platform\OpenGl</Filter>
+    </ClInclude>
     <ClInclude Include="Src\Platform\OpenGl\OpenGlRendererAPI.h">
       <Filter>Src\Platform\OpenGl</Filter>
     </ClInclude>
@@ -85,6 +88,9 @@
       <Filter>Src\Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Src\Renderer\Buffer.h">
+      <Filter>Src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Renderer\FrameBuffer.h">
       <Filter>Src\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Src\Renderer\GraphicsContext.h">
@@ -1421,6 +1427,9 @@
     <ClCompile Include="Src\Platform\OpenGl\OpenGlContext.cpp">
       <Filter>Src\Platform\OpenGl</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Platform\OpenGl\OpenGlFrameBuffer.cpp">
+      <Filter>Src\Platform\OpenGl</Filter>
+    </ClCompile>
     <ClCompile Include="Src\Platform\OpenGl\OpenGlRendererAPI.cpp">
       <Filter>Src\Platform\OpenGl</Filter>
     </ClCompile>
@@ -1440,6 +1449,9 @@
       <Filter>Src\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Src\Renderer\Buffer.cpp">
+      <Filter>Src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Renderer\FrameBuffer.cpp">
       <Filter>Src\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Src\Renderer\OrthographicCamera.cpp">

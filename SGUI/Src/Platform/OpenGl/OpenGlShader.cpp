@@ -102,6 +102,11 @@ namespace SGUI
 		UploadUniformInt(name, value);
 	}
 
+	void OpenGlShader::SetIntArray(const std::string& name, int* values, uint32_t count)
+	{
+		UploadUniformIntArray(name, values, count);
+	}
+
 	void OpenGlShader::UploadUniformFloat4(const std::string& name, const glm::vec4& values)
 	{
 		int location = glGetUniformLocation(m_RendererID, name.c_str());
@@ -130,6 +135,12 @@ namespace SGUI
 	{
 		int location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1i(location, values);
+	}
+
+	void OpenGlShader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
+	{
+		int location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform1iv(location, count, values);
 	}
 
 	std::string OpenGlShader::ReadFile(const std::string& filepath)

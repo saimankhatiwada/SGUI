@@ -90,9 +90,49 @@ project "Sandbox"
    files
    {
        "%{prj.name}/Src/**.h",
-	   "%{prj.name}/Src/**.cpp",
-       "%{prj.name}/GameTest/**.h",
-	   "%{prj.name}/GameTest/**.cpp"
+	   "%{prj.name}/Src/**.cpp"
+   }
+
+   includedirs
+   {
+       "SGUI/Src",
+	   "SGUI/vendor/spdlog/include",
+       "SGUI/vendor/imgui",
+       "%{IncludeDir.glm}"
+   }
+
+   links
+   {
+   	   "SGUI"
+   }
+
+   defines
+   {
+   	   "SG_PLATFORM_WINDOW"
+   }
+   filter "configurations:Debug"
+     defines "SG_DEBUG"
+	 symbols "on"
+   filter "configurations:Release"
+     defines "SG_Release"
+	 optimize  "on"
+
+
+project "Synthesia-Editor"
+   location "Synthesia-Editor"
+   kind "ConsoleApp"
+   language "C++"
+   cppdialect "C++17"
+   staticruntime "on"
+   systemversion "latest"
+
+   targetdir ("bin/" ..outputdir.. "/%{prj.name}")
+   objdir ("bin-int/" ..outputdir.. "/%{prj.name}")
+   
+   files
+   {
+       "%{prj.name}/Src/**.h",
+	   "%{prj.name}/Src/**.cpp"
    }
 
    includedirs

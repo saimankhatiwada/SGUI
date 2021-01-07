@@ -76,7 +76,8 @@ namespace SGUI
 	void OpenGlTexture2D::SetData(void* data, uint32_t size)
 	{
 		SG_PROFILE_FUNCTION();
-
+		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		SG_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
@@ -86,4 +87,10 @@ namespace SGUI
 
 		glBindTextureUnit(slot, m_RendererID);
 	}
+
+	bool OpenGlTexture2D::operator==(const Texture& other) const
+	{
+		return m_RendererID == ((OpenGlTexture2D&)other).m_RendererID;
+	}
+
 }

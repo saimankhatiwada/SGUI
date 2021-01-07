@@ -29,9 +29,9 @@ namespace SGUI
 		}
 
 
-		inline static void DrawIndexed(Ref<VertexArray>& vertexarray)
+		inline static void DrawIndexed(Ref<VertexArray>& vertexarray, uint32_t indexcount=0)
 		{
-			s_RendererAPI->DrawIndexed(vertexarray);
+			s_RendererAPI->DrawIndexed(vertexarray, indexcount);
 		}
 	private:
 		static RendererAPI* s_RendererAPI;

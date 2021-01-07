@@ -14,7 +14,7 @@ namespace SGUI
 			case RendererAPI::API::None:
 				return nullptr;
 			case RendererAPI::API::OpenGL:
-				return std::make_shared<OpenGlVertexArray>();
+				return CreateRef<OpenGlVertexArray>();
 		}
 		return nullptr;
 	}

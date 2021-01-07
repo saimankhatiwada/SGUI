@@ -5,26 +5,39 @@
 
 namespace SGUI
 {
-	VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size)
+	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None:
+			return nullptr;
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGlVertexBuffer>(size);
+		}
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None:
 				return nullptr;
 			case RendererAPI::API::OpenGL:
-				return new OpenGlVertexBuffer(vertices, size);
+				return CreateRef<OpenGlVertexBuffer>(vertices, size);
 		}
 		return nullptr;
 	}
 
-	IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t size)
+
+	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:
 				return nullptr;
 			case RendererAPI::API::OpenGL:
-				return new OpenGlIndexBuffer(indices, size);
+				return CreateRef<OpenGlIndexBuffer>(indices, size);
 		}
 		return nullptr;
 	}

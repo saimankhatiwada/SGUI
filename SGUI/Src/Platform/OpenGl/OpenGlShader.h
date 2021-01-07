@@ -20,6 +20,7 @@ namespace SGUI
 		void SetFloat4(const std::string& name, const glm::vec4& value);
 		void SetFloat3(const std::string& name, const glm::vec3& value);
 		void SetInt(const std::string& name, int value);
+		void SetIntArray(const std::string& name, int* values, uint32_t count);
 
 		
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
@@ -31,6 +32,7 @@ namespace SGUI
 		void UploadUniformFloat(const std::string& name, float values);
 
 		void UploadUniformInt(const std::string& name, int values);
+		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
 
 	private:
 		std::string ReadFile(const std::string& filepath);

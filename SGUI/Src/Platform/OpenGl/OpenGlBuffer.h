@@ -6,11 +6,14 @@ namespace SGUI
 	class OpenGlVertexBuffer : public VertexBuffer
 	{
 	public:
+		OpenGlVertexBuffer(uint32_t size);
 		OpenGlVertexBuffer(float* vertices, uint32_t size);
 		virtual ~OpenGlVertexBuffer();
 
 		void Bind() const;
 		void UnBind() const;
+
+		void SetData(const void* data, uint32_t size);
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }

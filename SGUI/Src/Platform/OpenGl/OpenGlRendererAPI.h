@@ -12,6 +12,6 @@ namespace SGUI
 		void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 		void Clear();
 
-		void DrawIndexed(const Ref<VertexArray>& vertexArray);
+		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0);
 	};
 }

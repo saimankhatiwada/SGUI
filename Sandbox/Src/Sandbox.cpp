@@ -23,7 +23,7 @@ public:
 		};
 
 		SGUI::Ref<SGUI::VertexBuffer> squareVertexBuffer;
-		squareVertexBuffer.reset(SGUI::VertexBuffer::Create(SquareVertices, sizeof(SquareVertices)));
+		squareVertexBuffer = SGUI::VertexBuffer::Create(SquareVertices, sizeof(SquareVertices));
 		SGUI::BufferLayout Squarelayout = {
 			{ SGUI::ShaderDataType::Float3, "a_Position" },
 			{ SGUI::ShaderDataType::Float2, "a_TexCord" }
@@ -33,7 +33,7 @@ public:
 
 		unsigned int SquareIndices[6] = { 0,1,2,2,3,0 };
 		SGUI::Ref<SGUI::IndexBuffer> squareIndexBuffer;
-		squareIndexBuffer.reset(SGUI::IndexBuffer::Create(SquareIndices, 6));
+		squareIndexBuffer = SGUI::IndexBuffer::Create(SquareIndices, 6);
 		m_SquareVertexArray->SetIndexBuffer(squareIndexBuffer);
 
 		SGUI::Ref<SGUI::Shader> m_SquareShader = m_ShaderLibary.Load("Assets/Shaders/SquareShader.glsl");

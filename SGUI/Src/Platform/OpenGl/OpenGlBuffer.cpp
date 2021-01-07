@@ -13,6 +13,15 @@ namespace SGUI
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 	}
 
+	OpenGlVertexBuffer::OpenGlVertexBuffer(uint32_t size)
+	{
+		SG_PROFILE_FUNCTION();
+
+		glCreateBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+	}
+
 	OpenGlVertexBuffer::~OpenGlVertexBuffer()
 	{
 		SG_PROFILE_FUNCTION();
@@ -34,7 +43,15 @@ namespace SGUI
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	OpenGlIndexBuffer::OpenGlIndexBuffer(uint32_t* indices, uint32_t size):
+	void OpenGlVertexBuffer::SetData(const void* data, uint32_t size)
+	{
+		SG_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+	}
+
+	OpenGlIndexBuffer::OpenGlIndexBuffer(uint32_t* indices, uint32_t size) :
 		m_Count(size)
 	{
 		SG_PROFILE_FUNCTION();

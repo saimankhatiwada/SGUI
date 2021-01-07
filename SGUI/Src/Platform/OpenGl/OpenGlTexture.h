@@ -13,12 +13,13 @@ namespace SGUI
 
 		virtual uint32_t GetWidth() const { return m_Width; }
 		virtual uint32_t GetHeight() const { return m_Height; }
+		virtual uint32_t GetRendererID() const { return m_RendererID; }
 
 		void SetData(void* data, uint32_t size);
 
 		virtual void Bind(uint32_t slot = 0) const;
 
-
+		bool operator==(const Texture& other)const;
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Width, m_Height;

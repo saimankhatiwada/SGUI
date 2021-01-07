@@ -13,6 +13,7 @@
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
+#include "Renderer/FrameBuffer.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/OrthographicCameraController.h"
 #include "Renderer/VertexArray.h"

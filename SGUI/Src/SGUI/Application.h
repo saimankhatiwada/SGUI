@@ -23,6 +23,8 @@ namespace SGUI
 		void PushLayer(Layer* layer);
 		void PushOverLay(Layer* layer);
 
+		void Close();
+
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 

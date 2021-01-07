@@ -67,6 +67,11 @@ namespace SGUI
 		layer->OnAttach();
 	}
 
+	void Application::Close()
+	{
+		m_Running = false;
+	}
+
 	void Application::Run()
 	{
 		SG_PROFILE_SCOPE("Application::Run");
