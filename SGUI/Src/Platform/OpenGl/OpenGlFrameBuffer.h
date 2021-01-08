@@ -1,13 +1,14 @@
 #pragma once
-#include "Renderer/FrameBuffer.h"
 
-namespace SGUI
-{
-	class OpenGlFramebuffer : public Framebuffer
+#include "SGUI/Renderer/Framebuffer.h"
+
+namespace SGUI {
+
+	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:
-		OpenGlFramebuffer(const FramebufferSpecification& spec);
-		virtual ~OpenGlFramebuffer();
+		OpenGLFramebuffer(const FramebufferSpecification& spec);
+		virtual ~OpenGLFramebuffer();
 
 		void Invalidate();
 
@@ -24,4 +25,5 @@ namespace SGUI
 		uint32_t m_ColorAttachment = 0, m_DepthAttachment = 0;
 		FramebufferSpecification m_Specification;
 	};
+
 }

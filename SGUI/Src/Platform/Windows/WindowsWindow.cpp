@@ -1,23 +1,26 @@
+#include "hzpch.h"
+#include "Platform/Windows/WindowsWindow.h"
 
-#include "WindowsWindow.h"
-#include "glad/glad.h"
-#include "Platform/OpenGl/OpenGlContext.h"
+#include "SGUI/Core/Input.h"
 
+#include "SGUI/Events/ApplicationEvent.h"
+#include "SGUI/Events/MouseEvent.h"
+#include "SGUI/Events/KeyEvent.h"
 
-namespace SGUI
-{
-	static bool s_GLFWInitialized = false;
+#include "SGUI/Renderer/Renderer.h"
+
+#include "Platform/OpenGL/OpenGLContext.h"
+
+namespace SGUI {
+	
+	static uint8_t s_GLFWWindowCount = 0;
+
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		SG_CORE_ERROR("GLFW error {0}:{1}", error, description);
+		HZ_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
-	Window* Window::Create(const WindowProps& props)
-	{
-		return new WindowsWindow(props);
-	}
-
-	WindowsWindow::WindowsWindow(const WindowProps & props)
+	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
 		SG_PROFILE_FUNCTION();
 
@@ -31,126 +34,109 @@ namespace SGUI
 		Shutdown();
 	}
 
-	void WindowsWindow::OnUpdate()
+	void WindowsWindow::Init(const WindowProps& props)
 	{
 		SG_PROFILE_FUNCTION();
 
-		glfwPollEvents();
-		m_Context->SwapBuffers();
-	}
-
-	void WindowsWindow::SetVsync(bool enabled)
-	{
-		SG_PROFILE_FUNCTION();
-
-		if (enabled)
-		{
-			glfwSwapInterval(1);
-		}
-		else
-		{
-			glfwSwapInterval(0);
-		}
-		m_Data.Vsync = enabled;
-	}
-
-	bool WindowsWindow::IsVsync() const
-	{
-		return m_Data.Vsync;
-	}
-
-	void WindowsWindow::Init(const WindowProps & props)
-	{
-		SG_PROFILE_FUNCTION();
-
-		m_Data.Title = props.Height;
+		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		SG_CORE_INFO("Creating Window {0} ({1},{2})", props.Title, props.Width, props.Height);
-		if (!s_GLFWInitialized)
+		HZ_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+
+		if (s_GLFWWindowCount == 0)
 		{
-			int Sucess = glfwInit();
-			SG_CORE_ASSERT(Sucess, "Could not Initialize GLFW!");
-			s_GLFWInitialized = true;
+			SG_PROFILE_SCOPE("glfwInit");
+			int success = glfwInit();
+			SG_CORE_ASSERT(success, "Could not initialize GLFW!");
+			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
+		{
+			SG_PROFILE_SCOPE("glfwCreateWindow");
+		#if defined(HZ_DEBUG)
+			if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+		#endif
+			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+			++s_GLFWWindowCount;
+		}
 
-		m_Context = new OpenGlContext(m_Window);
+		m_Context = GraphicsContext::Create(m_Window);
 		m_Context->Init();
 
-		
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVsync(true);
+		SetVSync(true);
 
-		//set GLFW callback
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int Width, int Height)
+		// Set GLFW callbacks
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			data.Width = Width;
-			data.Height = Height;
+			data.Width = width;
+			data.Height = height;
 
-
-			WindowResizeEvent eventWindowSize(Width, Height);
-			data.EventCallBack(eventWindowSize);
+			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
 		});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			WindowCloseEvent eventWindowClose;
-			data.EventCallBack(eventWindowClose);
+			WindowCloseEvent event;
+			data.EventCallback(event);
 		});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
 			switch (action)
 			{
 				case GLFW_PRESS:
 				{
-					KeyPressedEvent eventKeyPress(key, 0);
-					data.EventCallBack(eventKeyPress);
+					KeyPressedEvent event(key, 0);
+					data.EventCallback(event);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
-					KeyReleasedEvent eventKeyRelease(key);
-					data.EventCallBack(eventKeyRelease);
+					KeyReleasedEvent event(key);
+					data.EventCallback(event);
 					break;
 				}
 				case GLFW_REPEAT:
 				{
-					KeyPressedEvent eventKeyPressedRepeat(key, 1);
-					data.EventCallBack(eventKeyPressedRepeat);
+					KeyPressedEvent event(key, 1);
+					data.EventCallback(event);
 					break;
 				}
 			}
 		});
 
-		glfwSetCharCallback(m_Window, [](GLFWwindow* window,unsigned int KeyCode)
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			KeyTypedEvent event(KeyCode);
-			data.EventCallBack(event);
+
+			KeyTypedEvent event(keycode);
+			data.EventCallback(event);
 		});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
 			switch (action)
 			{
 				case GLFW_PRESS:
 				{
-					MouseButtonPressedEvent eventMouseButtonPress(button);
-					data.EventCallBack(eventMouseButtonPress);
+					MouseButtonPressedEvent event(button);
+					data.EventCallback(event);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
-					MouseButtonReleasedEvent eventMouseButtonRelease(button);
-					data.EventCallBack(eventMouseButtonRelease);
+					MouseButtonReleasedEvent event(button);
+					data.EventCallback(event);
 					break;
 				}
 			}
@@ -159,15 +145,17 @@ namespace SGUI
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			MouseScrolledEvent eventMouseScroll((float)xOffset, (float)yOffset);
-			data.EventCallBack(eventMouseScroll);
+
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			data.EventCallback(event);
 		});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			MouseMovedEvent eventMouseCursorPos((float)xPos, (float)yPos);
-			data.EventCallBack(eventMouseCursorPos);
+
+			MouseMovedEvent event((float)xPos, (float)yPos);
+			data.EventCallback(event);
 		});
 	}
 
@@ -176,6 +164,37 @@ namespace SGUI
 		SG_PROFILE_FUNCTION();
 
 		glfwDestroyWindow(m_Window);
+		--s_GLFWWindowCount;
+
+		if (s_GLFWWindowCount == 0)
+		{
+			glfwTerminate();
+		}
+	}
+
+	void WindowsWindow::OnUpdate()
+	{
+		SG_PROFILE_FUNCTION();
+
+		glfwPollEvents();
+		m_Context->SwapBuffers();
+	}
+
+	void WindowsWindow::SetVSync(bool enabled)
+	{
+		SG_PROFILE_FUNCTION();
+
+		if (enabled)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
+
+		m_Data.VSync = enabled;
+	}
+
+	bool WindowsWindow::IsVSync() const
+	{
+		return m_Data.VSync;
 	}
 
 }

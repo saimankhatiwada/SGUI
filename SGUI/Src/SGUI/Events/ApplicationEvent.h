@@ -1,7 +1,6 @@
 #pragma once
 
-#include "SGPCH.h"
-#include "Event.h"
+#include "SGUI/Events/Event.h"
 
 namespace SGUI {
 

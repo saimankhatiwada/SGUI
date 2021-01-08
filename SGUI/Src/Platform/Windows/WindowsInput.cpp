@@ -1,42 +1,42 @@
+#include "hzpch.h"
+#include "SGUI/Core/Input.h"
 
-#include "WindowsInput.h"
-#include "SGUI/Application.h"
-#include "GLFW/glfw3.h"
+#include "SGUI/Core/Application.h"
+#include <GLFW/glfw3.h>
 
-namespace SGUI
-{
-	Input* Input::s_Instance = new WindowsInput();
+namespace SGUI {
 
-	bool WindowsInput::IsKeyPressedImpl(int KeyCode)
+	bool Input::IsKeyPressed(const KeyCode key)
 	{
-		GLFWwindow* Window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		int state = glfwGetKey(Window, KeyCode);
+		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		auto state = glfwGetKey(window, static_cast<int32_t>(key));
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool WindowsInput::IsMouseButtonPressedImpl(int Button)
+	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		GLFWwindow* Window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		int state = glfwGetMouseButton(Window, Button);
+		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		auto state = glfwGetMouseButton(window, static_cast<int32_t>(button));
 		return state == GLFW_PRESS;
 	}
 
-	float WindowsInput::IsGetMouseXImpl()
+	glm::vec2 Input::GetMousePosition()
 	{
-		std::pair<float,float> PositionMouseX = GetMousePosition();
-		return std::get<0>(PositionMouseX);
+		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		return { (float)xpos, (float)ypos };
 	}
 
-	float WindowsInput::IsGetMouseYImpl()
+	float Input::GetMouseX()
 	{
-		std::pair<float, float> PositionMouseY = GetMousePosition();
-		return std::get<1>(PositionMouseY);
+		return GetMousePosition().x;
 	}
-	std::pair<float, float> WindowsInput::IsGetMousePositionImpl()
+
+	float Input::GetMouseY()
 	{
-		GLFWwindow* Window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		double xpos, ypos;
-		glfwGetCursorPos(Window, &xpos, &ypos);
-		return { (float)xpos,(float)ypos };
+		return GetMousePosition().y;
 	}
+
 }

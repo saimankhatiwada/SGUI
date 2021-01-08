@@ -1,41 +1,41 @@
 #pragma once
-#include "Renderer/Buffer.h"
 
-namespace SGUI
-{
-	class OpenGlVertexBuffer : public VertexBuffer
+#include "SGUI/Renderer/Buffer.h"
+
+namespace SGUI {
+
+	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
-		OpenGlVertexBuffer(uint32_t size);
-		OpenGlVertexBuffer(float* vertices, uint32_t size);
-		virtual ~OpenGlVertexBuffer();
+		OpenGLVertexBuffer(uint32_t size);
+		OpenGLVertexBuffer(float* vertices, uint32_t size);
+		virtual ~OpenGLVertexBuffer();
 
-		void Bind() const;
-		void UnBind() const;
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
+		
+		virtual void SetData(const void* data, uint32_t size) override;
 
-		void SetData(const void* data, uint32_t size);
-
-		const BufferLayout& GetLayout() const { return m_Layout; }
-		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
-
+		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
+		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 	private:
 		uint32_t m_RendererID;
 		BufferLayout m_Layout;
 	};
 
-	class OpenGlIndexBuffer : public IndexBuffer
+	class OpenGLIndexBuffer : public IndexBuffer
 	{
 	public:
-		OpenGlIndexBuffer(uint32_t* indices, uint32_t size);
-		virtual ~OpenGlIndexBuffer();
+		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
+		virtual ~OpenGLIndexBuffer();
 
-		void Bind() const;
-		void UnBind() const;
+		virtual void Bind() const;
+		virtual void Unbind() const;
 
-		uint32_t GetCount() const { return m_Count; }
-
+		virtual uint32_t GetCount() const { return m_Count; }
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Count;
 	};
+
 }

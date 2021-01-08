@@ -1,26 +1,26 @@
-#include "OpenGlFrameBuffer.h"
-#include "glad/glad.h"
-#include "SGUI/Log.h"
+#include "hzpch.h"
+#include "Platform/OpenGL/OpenGLFramebuffer.h"
 
-namespace SGUI
-{
+#include <glad/glad.h>
+
+namespace SGUI {
+
 	static const uint32_t s_MaxFramebufferSize = 8192;
 
-
-	OpenGlFramebuffer::OpenGlFramebuffer(const FramebufferSpecification& spec):
-		m_Specification(spec)
+	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
+		: m_Specification(spec)
 	{
 		Invalidate();
 	}
 
-	OpenGlFramebuffer::~OpenGlFramebuffer()
+	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(1, &m_ColorAttachment);
 		glDeleteTextures(1, &m_DepthAttachment);
 	}
 
-	void OpenGlFramebuffer::Invalidate()
+	void OpenGLFramebuffer::Invalidate()
 	{
 		if (m_RendererID)
 		{
@@ -31,7 +31,7 @@ namespace SGUI
 
 		glCreateFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-
+		
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.Width, m_Specification.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -50,27 +50,27 @@ namespace SGUI
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void OpenGlFramebuffer::Bind()
+	void OpenGLFramebuffer::Bind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
 	}
 
-	void OpenGlFramebuffer::Unbind()
+	void OpenGLFramebuffer::Unbind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void OpenGlFramebuffer::Resize(uint32_t width, uint32_t height)
+	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
 		{
-			SG_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
+			HZ_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
 			return;
 		}
 		m_Specification.Width = width;
 		m_Specification.Height = height;
-
+		
 		Invalidate();
 	}
 

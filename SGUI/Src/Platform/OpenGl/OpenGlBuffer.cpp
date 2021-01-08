@@ -1,19 +1,15 @@
+#include "hzpch.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
-#include "OpenGlBuffer.h"
-#include "glad/glad.h"
+#include <glad/glad.h>
 
-namespace SGUI
-{
-	OpenGlVertexBuffer::OpenGlVertexBuffer(float* vertices, uint32_t size)
-	{
-		SG_PROFILE_FUNCTION();
+namespace SGUI {
 
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-	}
+	/////////////////////////////////////////////////////////////////////////////
+	// VertexBuffer /////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
-	OpenGlVertexBuffer::OpenGlVertexBuffer(uint32_t size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
 	{
 		SG_PROFILE_FUNCTION();
 
@@ -22,63 +18,78 @@ namespace SGUI
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	OpenGlVertexBuffer::~OpenGlVertexBuffer()
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
+	{
+		SG_PROFILE_FUNCTION();
+
+		glCreateBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	}
+
+	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
 		SG_PROFILE_FUNCTION();
 
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGlVertexBuffer::Bind() const
+	void OpenGLVertexBuffer::Bind() const
 	{
 		SG_PROFILE_FUNCTION();
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 	}
 
-	void OpenGlVertexBuffer::UnBind() const
+	void OpenGLVertexBuffer::Unbind() const
 	{
 		SG_PROFILE_FUNCTION();
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void OpenGlVertexBuffer::SetData(const void* data, uint32_t size)
+	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
 	{
-		SG_PROFILE_FUNCTION();
-
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
 
-	OpenGlIndexBuffer::OpenGlIndexBuffer(uint32_t* indices, uint32_t size) :
-		m_Count(size)
+	/////////////////////////////////////////////////////////////////////////////
+	// IndexBuffer //////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
+		: m_Count(count)
 	{
 		SG_PROFILE_FUNCTION();
 
 		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		
+		// GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
+		// Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state. 
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}
 
-	OpenGlIndexBuffer::~OpenGlIndexBuffer()
+	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
 		SG_PROFILE_FUNCTION();
 
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGlIndexBuffer::Bind() const
+	void OpenGLIndexBuffer::Bind() const
 	{
 		SG_PROFILE_FUNCTION();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 	}
 
-	void OpenGlIndexBuffer::UnBind() const
+	void OpenGLIndexBuffer::Unbind() const
 	{
 		SG_PROFILE_FUNCTION();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+
 }

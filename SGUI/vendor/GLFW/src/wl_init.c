@@ -26,8 +26,6 @@
 // It is fine to use C99 in this file because it will not be built with VS
 //========================================================================
 
-#define _POSIX_C_SOURCE 199309L
-
 #include "internal.h"
 
 #include <assert.h>
@@ -40,7 +38,6 @@
 #include <sys/mman.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
-#include <time.h>
 #include <wayland-client.h>
 
 
@@ -128,7 +125,6 @@ static void pointerHandleLeave(void* data,
     _glfw.wl.serial = serial;
     _glfw.wl.pointerFocus = NULL;
     _glfwInputCursorEnter(window, GLFW_FALSE);
-    _glfw.wl.cursorPreviousName = NULL;
 }
 
 static void setCursor(_GLFWwindow* window, const char* name)
@@ -173,7 +169,6 @@ static void setCursor(_GLFWwindow* window, const char* name)
     wl_surface_damage(surface, 0, 0,
                       image->width, image->height);
     wl_surface_commit(surface);
-    _glfw.wl.cursorPreviousName = name;
 }
 
 static void pointerHandleMotion(void* data,
@@ -183,47 +178,48 @@ static void pointerHandleMotion(void* data,
                                 wl_fixed_t sy)
 {
     _GLFWwindow* window = _glfw.wl.pointerFocus;
-    const char* cursorName = NULL;
-    double x, y;
+    const char* cursorName;
 
     if (!window)
         return;
 
     if (window->cursorMode == GLFW_CURSOR_DISABLED)
         return;
-    x = wl_fixed_to_double(sx);
-    y = wl_fixed_to_double(sy);
+    else
+    {
+        window->wl.cursorPosX = wl_fixed_to_double(sx);
+        window->wl.cursorPosY = wl_fixed_to_double(sy);
+    }
 
     switch (window->wl.decorations.focus)
     {
         case mainWindow:
-            window->wl.cursorPosX = x;
-            window->wl.cursorPosY = y;
-            _glfwInputCursorPos(window, x, y);
-            _glfw.wl.cursorPreviousName = NULL;
+            _glfwInputCursorPos(window,
+                                wl_fixed_to_double(sx),
+                                wl_fixed_to_double(sy));
             return;
         case topDecoration:
-            if (y < _GLFW_DECORATION_WIDTH)
+            if (window->wl.cursorPosY < _GLFW_DECORATION_WIDTH)
                 cursorName = "n-resize";
             else
                 cursorName = "left_ptr";
             break;
         case leftDecoration:
-            if (y < _GLFW_DECORATION_WIDTH)
+            if (window->wl.cursorPosY < _GLFW_DECORATION_WIDTH)
                 cursorName = "nw-resize";
             else
                 cursorName = "w-resize";
             break;
         case rightDecoration:
-            if (y < _GLFW_DECORATION_WIDTH)
+            if (window->wl.cursorPosY < _GLFW_DECORATION_WIDTH)
                 cursorName = "ne-resize";
             else
                 cursorName = "e-resize";
             break;
         case bottomDecoration:
-            if (x < _GLFW_DECORATION_WIDTH)
+            if (window->wl.cursorPosX < _GLFW_DECORATION_WIDTH)
                 cursorName = "sw-resize";
-            else if (x > window->wl.width + _GLFW_DECORATION_WIDTH)
+            else if (window->wl.cursorPosX > window->wl.width + _GLFW_DECORATION_WIDTH)
                 cursorName = "se-resize";
             else
                 cursorName = "s-resize";
@@ -231,8 +227,7 @@ static void pointerHandleMotion(void* data,
         default:
             assert(0);
     }
-    if (_glfw.wl.cursorPreviousName != cursorName)
-        setCursor(window, cursorName);
+    setCursor(window, cursorName);
 }
 
 static void pointerHandleButton(void* data,
@@ -341,9 +336,9 @@ static void pointerHandleAxis(void* data,
            axis == WL_POINTER_AXIS_VERTICAL_SCROLL);
 
     if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL)
-        x = -wl_fixed_to_double(value) * scrollFactor;
+        x = wl_fixed_to_double(value) * scrollFactor;
     else if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
-        y = -wl_fixed_to_double(value) * scrollFactor;
+        y = wl_fixed_to_double(value) * scrollFactor;
 
     _glfwInputScroll(window, x, y);
 }
@@ -1146,6 +1141,11 @@ int _glfwPlatformInit(void)
     // Sync so we got all initial output events
     wl_display_roundtrip(_glfw.wl.display);
 
+#ifdef __linux__
+    if (!_glfwInitJoysticksLinux())
+        return GLFW_FALSE;
+#endif
+
     _glfwInitTimerPOSIX();
 
     _glfw.wl.timerfd = -1;
@@ -1208,6 +1208,9 @@ int _glfwPlatformInit(void)
 
 void _glfwPlatformTerminate(void)
 {
+#ifdef __linux__
+    _glfwTerminateJoysticksLinux();
+#endif
     _glfwTerminateEGL();
     if (_glfw.wl.egl.handle)
     {

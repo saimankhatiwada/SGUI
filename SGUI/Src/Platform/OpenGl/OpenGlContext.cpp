@@ -1,35 +1,38 @@
+#include "hzpch.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
-#include "OpenGlContext.h"
-#include "GLFW/glfw3.h"
-#include "glad/glad.h"
-#include "SGUI/Log.h"
-#include "PerformanceVisualizer/RuntimeVisualizer.h"
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
-namespace SGUI
-{
-	OpenGlContext::OpenGlContext(GLFWwindow* WindowHandle):
-		m_WindowHandle(WindowHandle)
+namespace SGUI {
+
+	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
+		: m_WindowHandle(windowHandle)
 	{
-
+		SG_CORE_ASSERT(windowHandle, "Window handle is null!")
 	}
 
-	void OpenGlContext::Init()
+	void OpenGLContext::Init()
 	{
 		SG_PROFILE_FUNCTION();
 
 		glfwMakeContextCurrent(m_WindowHandle);
-		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		SG_CORE_INFO("OpenGl Info:");
-		SG_CORE_INFO("Vendor: {0}", glGetString(GL_VENDOR));
-		SG_CORE_INFO("Renderer: {0}", glGetString(GL_RENDERER));
-		SG_CORE_INFO("Version: {0}", glGetString(GL_VERSION));
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		SG_CORE_ASSERT(status, "Failed to initialize Glad!");
 
+		HZ_CORE_INFO("OpenGL Info:");
+		HZ_CORE_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
+		HZ_CORE_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
+		HZ_CORE_INFO("  Version: {0}", glGetString(GL_VERSION));
+
+		SG_CORE_ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "SGUI requires at least OpenGL version 4.5!");
 	}
 
-	void OpenGlContext::SwapBuffers()
+	void OpenGLContext::SwapBuffers()
 	{
 		SG_PROFILE_FUNCTION();
 
 		glfwSwapBuffers(m_WindowHandle);
 	}
+
 }

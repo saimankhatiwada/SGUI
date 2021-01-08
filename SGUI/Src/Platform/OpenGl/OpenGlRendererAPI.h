@@ -1,17 +1,20 @@
 #pragma once
 
-#include "Renderer/RendererAPI.h"
-#include "SGUI/Core.h"
+#include "SGUI/Renderer/RendererAPI.h"
 
-namespace SGUI
-{
-	class OpenGlRendererAPI : public RendererAPI
+namespace SGUI {
+
+	class OpenGLRendererAPI : public RendererAPI
 	{
-		void Init();
-		void SetClearColor(const glm::vec4& color);
-		void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-		void Clear();
+	public:
+		virtual void Init() override;
+		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
-		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0);
+		virtual void SetClearColor(const glm::vec4& color) override;
+		virtual void Clear() override;
+
+		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 	};
+
+
 }

@@ -55,13 +55,6 @@
 #define BEHAVIOR_NAME_NONE  "none"
 #define BEHAVIOR_NAME_FLUSH "flush"
 
-#define ANGLE_TYPE_OPENGL   "gl"
-#define ANGLE_TYPE_OPENGLES "es"
-#define ANGLE_TYPE_D3D9     "d3d9"
-#define ANGLE_TYPE_D3D11    "d3d11"
-#define ANGLE_TYPE_VULKAN   "vk"
-#define ANGLE_TYPE_METAL    "mtl"
-
 static void usage(void)
 {
     printf("Usage: glfwinfo [OPTION]...\n");
@@ -108,13 +101,6 @@ static void usage(void)
     printf("      --srgb                request an sRGB capable framebuffer\n");
     printf("      --singlebuffer        request single-buffering\n");
     printf("      --no-error            request a context that does not emit errors\n");
-    printf("      --angle-type=TYPE     the ANGLE platform type to use ("
-                                        ANGLE_TYPE_OPENGL ", "
-                                        ANGLE_TYPE_OPENGLES ", "
-                                        ANGLE_TYPE_D3D9 ", "
-                                        ANGLE_TYPE_D3D11 ", "
-                                        ANGLE_TYPE_VULKAN " or "
-                                        ANGLE_TYPE_METAL ")\n");
     printf("      --graphics-switching  request macOS graphics switching\n");
 }
 
@@ -292,7 +278,7 @@ static void list_vulkan_device_layers(VkInstance instance, VkPhysicalDevice devi
     free(lp);
 }
 
-static bool valid_version(void)
+static int valid_version(void)
 {
     int major, minor, revision;
     glfwGetVersion(&major, &minor, &revision);
@@ -300,13 +286,13 @@ static bool valid_version(void)
     if (major != GLFW_VERSION_MAJOR)
     {
         printf("*** ERROR: GLFW major version mismatch! ***\n");
-        return false;
+        return GLFW_FALSE;
     }
 
     if (minor != GLFW_VERSION_MINOR || revision != GLFW_VERSION_REVISION)
         printf("*** WARNING: GLFW version mismatch! ***\n");
 
-    return true;
+    return GLFW_TRUE;
 }
 
 static void print_version(void)
@@ -332,42 +318,13 @@ int main(int argc, char** argv)
     int ch;
     bool list_extensions = false, list_layers = false;
 
-    // These duplicate the defaults for each hint
-    int client_api = GLFW_OPENGL_API;
-    int context_major = 1;
-    int context_minor = 0;
-    int context_release = GLFW_ANY_RELEASE_BEHAVIOR;
-    int context_creation_api = GLFW_NATIVE_CONTEXT_API;
-    int context_robustness = GLFW_NO_ROBUSTNESS;
-    bool context_debug = false;
-    bool context_no_error = false;
-    bool opengl_forward = false;
-    int opengl_profile = GLFW_OPENGL_ANY_PROFILE;
-    int fb_red_bits = 8;
-    int fb_green_bits = 8;
-    int fb_blue_bits = 8;
-    int fb_alpha_bits = 8;
-    int fb_depth_bits = 24;
-    int fb_stencil_bits = 8;
-    int fb_accum_red_bits = 0;
-    int fb_accum_green_bits = 0;
-    int fb_accum_blue_bits = 0;
-    int fb_accum_alpha_bits = 0;
-    int fb_aux_buffers = 0;
-    int fb_samples = 0;
-    bool fb_stereo = false;
-    bool fb_srgb = false;
-    bool fb_doublebuffer = true;
-    int angle_type = GLFW_ANGLE_PLATFORM_TYPE_NONE;
-    bool cocoa_graphics_switching = false;
-
     enum { CLIENT, CONTEXT, BEHAVIOR, DEBUG_CONTEXT, FORWARD, HELP,
            EXTENSIONS, LAYERS,
            MAJOR, MINOR, PROFILE, ROBUSTNESS, VERSION,
            REDBITS, GREENBITS, BLUEBITS, ALPHABITS, DEPTHBITS, STENCILBITS,
            ACCUMREDBITS, ACCUMGREENBITS, ACCUMBLUEBITS, ACCUMALPHABITS,
            AUXBUFFERS, SAMPLES, STEREO, SRGB, SINGLEBUFFER, NOERROR_SRSLY,
-           ANGLE_TYPE, GRAPHICS_SWITCHING };
+           GRAPHICS_SWITCHING };
     const struct option options[] =
     {
         { "behavior",           1, NULL, BEHAVIOR },
@@ -399,10 +356,21 @@ int main(int argc, char** argv)
         { "srgb",               0, NULL, SRGB },
         { "singlebuffer",       0, NULL, SINGLEBUFFER },
         { "no-error",           0, NULL, NOERROR_SRSLY },
-        { "angle-type",         1, NULL, ANGLE_TYPE },
         { "graphics-switching", 0, NULL, GRAPHICS_SWITCHING },
         { NULL, 0, NULL, 0 }
     };
+
+    // Initialize GLFW and create window
+
+    if (!valid_version())
+        exit(EXIT_FAILURE);
+
+    glfwSetErrorCallback(error_callback);
+
+    glfwInitHint(GLFW_COCOA_MENUBAR, GLFW_FALSE);
+
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
 
     while ((ch = getopt_long(argc, argv, "a:b:c:dfhlm:n:p:s:v", options, NULL)) != -1)
     {
@@ -411,9 +379,9 @@ int main(int argc, char** argv)
             case 'a':
             case CLIENT:
                 if (strcasecmp(optarg, API_NAME_OPENGL) == 0)
-                    client_api = GLFW_OPENGL_API;
+                    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
                 else if (strcasecmp(optarg, API_NAME_OPENGL_ES) == 0)
-                    client_api = GLFW_OPENGL_ES_API;
+                    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
                 else
                 {
                     usage();
@@ -423,9 +391,15 @@ int main(int argc, char** argv)
             case 'b':
             case BEHAVIOR:
                 if (strcasecmp(optarg, BEHAVIOR_NAME_NONE) == 0)
-                    context_release = GLFW_RELEASE_BEHAVIOR_NONE;
+                {
+                    glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR,
+                                   GLFW_RELEASE_BEHAVIOR_NONE);
+                }
                 else if (strcasecmp(optarg, BEHAVIOR_NAME_FLUSH) == 0)
-                    context_release = GLFW_RELEASE_BEHAVIOR_FLUSH;
+                {
+                    glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR,
+                                   GLFW_RELEASE_BEHAVIOR_FLUSH);
+                }
                 else
                 {
                     usage();
@@ -435,11 +409,11 @@ int main(int argc, char** argv)
             case 'c':
             case CONTEXT:
                 if (strcasecmp(optarg, API_NAME_NATIVE) == 0)
-                    context_creation_api = GLFW_NATIVE_CONTEXT_API;
+                    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
                 else if (strcasecmp(optarg, API_NAME_EGL) == 0)
-                    context_creation_api = GLFW_EGL_CONTEXT_API;
+                    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
                 else if (strcasecmp(optarg, API_NAME_OSMESA) == 0)
-                    context_creation_api = GLFW_OSMESA_CONTEXT_API;
+                    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_OSMESA_CONTEXT_API);
                 else
                 {
                     usage();
@@ -448,11 +422,11 @@ int main(int argc, char** argv)
                 break;
             case 'd':
             case DEBUG_CONTEXT:
-                context_debug = true;
+                glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
                 break;
             case 'f':
             case FORWARD:
-                opengl_forward = true;
+                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
                 break;
             case 'h':
             case HELP:
@@ -460,25 +434,31 @@ int main(int argc, char** argv)
                 exit(EXIT_SUCCESS);
             case 'l':
             case EXTENSIONS:
-                list_extensions = true;
+                list_extensions = GLFW_TRUE;
                 break;
             case LAYERS:
-                list_layers = true;
+                list_layers = GLFW_TRUE;
                 break;
             case 'm':
             case MAJOR:
-                context_major = atoi(optarg);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, atoi(optarg));
                 break;
             case 'n':
             case MINOR:
-                context_minor = atoi(optarg);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, atoi(optarg));
                 break;
             case 'p':
             case PROFILE:
                 if (strcasecmp(optarg, PROFILE_NAME_CORE) == 0)
-                    opengl_profile = GLFW_OPENGL_CORE_PROFILE;
+                {
+                    glfwWindowHint(GLFW_OPENGL_PROFILE,
+                                   GLFW_OPENGL_CORE_PROFILE);
+                }
                 else if (strcasecmp(optarg, PROFILE_NAME_COMPAT) == 0)
-                    opengl_profile = GLFW_OPENGL_COMPAT_PROFILE;
+                {
+                    glfwWindowHint(GLFW_OPENGL_PROFILE,
+                                   GLFW_OPENGL_COMPAT_PROFILE);
+                }
                 else
                 {
                     usage();
@@ -488,9 +468,15 @@ int main(int argc, char** argv)
             case 's':
             case ROBUSTNESS:
                 if (strcasecmp(optarg, STRATEGY_NAME_NONE) == 0)
-                    context_robustness = GLFW_NO_RESET_NOTIFICATION;
+                {
+                    glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS,
+                                   GLFW_NO_RESET_NOTIFICATION);
+                }
                 else if (strcasecmp(optarg, STRATEGY_NAME_LOSE) == 0)
-                    context_robustness = GLFW_LOSE_CONTEXT_ON_RESET;
+                {
+                    glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS,
+                                   GLFW_LOSE_CONTEXT_ON_RESET);
+                }
                 else
                 {
                     usage();
@@ -503,109 +489,90 @@ int main(int argc, char** argv)
                 exit(EXIT_SUCCESS);
             case REDBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_red_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_RED_BITS, GLFW_DONT_CARE);
                 else
-                    fb_red_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_RED_BITS, atoi(optarg));
                 break;
             case GREENBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_green_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_GREEN_BITS, GLFW_DONT_CARE);
                 else
-                    fb_green_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_GREEN_BITS, atoi(optarg));
                 break;
             case BLUEBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_blue_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_BLUE_BITS, GLFW_DONT_CARE);
                 else
-                    fb_blue_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_BLUE_BITS, atoi(optarg));
                 break;
             case ALPHABITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_alpha_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_ALPHA_BITS, GLFW_DONT_CARE);
                 else
-                    fb_alpha_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_ALPHA_BITS, atoi(optarg));
                 break;
             case DEPTHBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_depth_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_DEPTH_BITS, GLFW_DONT_CARE);
                 else
-                    fb_depth_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_DEPTH_BITS, atoi(optarg));
                 break;
             case STENCILBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_stencil_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_STENCIL_BITS, GLFW_DONT_CARE);
                 else
-                    fb_stencil_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_STENCIL_BITS, atoi(optarg));
                 break;
             case ACCUMREDBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_accum_red_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_ACCUM_RED_BITS, GLFW_DONT_CARE);
                 else
-                    fb_accum_red_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_ACCUM_RED_BITS, atoi(optarg));
                 break;
             case ACCUMGREENBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_accum_green_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_ACCUM_GREEN_BITS, GLFW_DONT_CARE);
                 else
-                    fb_accum_green_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_ACCUM_GREEN_BITS, atoi(optarg));
                 break;
             case ACCUMBLUEBITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_accum_blue_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_ACCUM_BLUE_BITS, GLFW_DONT_CARE);
                 else
-                    fb_accum_blue_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_ACCUM_BLUE_BITS, atoi(optarg));
                 break;
             case ACCUMALPHABITS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_accum_alpha_bits = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, GLFW_DONT_CARE);
                 else
-                    fb_accum_alpha_bits = atoi(optarg);
+                    glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, atoi(optarg));
                 break;
             case AUXBUFFERS:
                 if (strcmp(optarg, "-") == 0)
-                    fb_aux_buffers = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_AUX_BUFFERS, GLFW_DONT_CARE);
                 else
-                    fb_aux_buffers = atoi(optarg);
+                    glfwWindowHint(GLFW_AUX_BUFFERS, atoi(optarg));
                 break;
             case SAMPLES:
                 if (strcmp(optarg, "-") == 0)
-                    fb_samples = GLFW_DONT_CARE;
+                    glfwWindowHint(GLFW_SAMPLES, GLFW_DONT_CARE);
                 else
-                    fb_samples = atoi(optarg);
+                    glfwWindowHint(GLFW_SAMPLES, atoi(optarg));
                 break;
             case STEREO:
-                fb_stereo = true;
+                glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
                 break;
             case SRGB:
-                fb_srgb = true;
+                glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
                 break;
             case SINGLEBUFFER:
-                fb_doublebuffer = false;
+                glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
                 break;
             case NOERROR_SRSLY:
-                context_no_error = true;
-                break;
-            case ANGLE_TYPE:
-                if (strcmp(optarg, ANGLE_TYPE_OPENGL) == 0)
-                    angle_type = GLFW_ANGLE_PLATFORM_TYPE_OPENGL;
-                else if (strcmp(optarg, ANGLE_TYPE_OPENGLES) == 0)
-                    angle_type = GLFW_ANGLE_PLATFORM_TYPE_OPENGLES;
-                else if (strcmp(optarg, ANGLE_TYPE_D3D9) == 0)
-                    angle_type = GLFW_ANGLE_PLATFORM_TYPE_D3D9;
-                else if (strcmp(optarg, ANGLE_TYPE_D3D11) == 0)
-                    angle_type = GLFW_ANGLE_PLATFORM_TYPE_D3D11;
-                else if (strcmp(optarg, ANGLE_TYPE_VULKAN) == 0)
-                    angle_type = GLFW_ANGLE_PLATFORM_TYPE_VULKAN;
-                else if (strcmp(optarg, ANGLE_TYPE_METAL) == 0)
-                    angle_type = GLFW_ANGLE_PLATFORM_TYPE_METAL;
-                else
-                {
-                    usage();
-                    exit(EXIT_FAILURE);
-                }
+                glfwWindowHint(GLFW_CONTEXT_NO_ERROR, GLFW_TRUE);
                 break;
             case GRAPHICS_SWITCHING:
-                cocoa_graphics_switching = true;
+                glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, GLFW_TRUE);
                 break;
             default:
                 usage();
@@ -613,52 +580,9 @@ int main(int argc, char** argv)
         }
     }
 
-    // Initialize GLFW and create window
-
-    if (!valid_version())
-        exit(EXIT_FAILURE);
-
-    glfwSetErrorCallback(error_callback);
-
-    glfwInitHint(GLFW_COCOA_MENUBAR, false);
-
-    glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, angle_type);
-
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-
     print_version();
 
-    glfwWindowHint(GLFW_VISIBLE, false);
-
-    glfwWindowHint(GLFW_CLIENT_API, client_api);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context_major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context_minor);
-    glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, context_release);
-    glfwWindowHint(GLFW_CONTEXT_CREATION_API, context_creation_api);
-    glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, context_robustness);
-    glfwWindowHint(GLFW_CONTEXT_DEBUG, context_debug);
-    glfwWindowHint(GLFW_CONTEXT_NO_ERROR, context_no_error);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, opengl_forward);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, opengl_profile);
-
-    glfwWindowHint(GLFW_RED_BITS, fb_red_bits);
-    glfwWindowHint(GLFW_BLUE_BITS, fb_blue_bits);
-    glfwWindowHint(GLFW_GREEN_BITS, fb_green_bits);
-    glfwWindowHint(GLFW_ALPHA_BITS, fb_alpha_bits);
-    glfwWindowHint(GLFW_DEPTH_BITS, fb_depth_bits);
-    glfwWindowHint(GLFW_STENCIL_BITS, fb_stencil_bits);
-    glfwWindowHint(GLFW_ACCUM_RED_BITS, fb_accum_red_bits);
-    glfwWindowHint(GLFW_ACCUM_GREEN_BITS, fb_accum_green_bits);
-    glfwWindowHint(GLFW_ACCUM_BLUE_BITS, fb_accum_blue_bits);
-    glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, fb_accum_alpha_bits);
-    glfwWindowHint(GLFW_AUX_BUFFERS, fb_aux_buffers);
-    glfwWindowHint(GLFW_SAMPLES, fb_samples);
-    glfwWindowHint(GLFW_STEREO, fb_stereo);
-    glfwWindowHint(GLFW_SRGB_CAPABLE, fb_srgb);
-    glfwWindowHint(GLFW_DOUBLEBUFFER, fb_doublebuffer);
-
-    glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, cocoa_graphics_switching);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(200, 200, "Version", NULL, NULL);
     if (!window)
@@ -715,7 +639,7 @@ int main(int argc, char** argv)
 
             if (glfwGetWindowAttrib(window, GLFW_OPENGL_FORWARD_COMPAT))
                 printf(" forward-compatible");
-            if (glfwGetWindowAttrib(window, GLFW_CONTEXT_DEBUG))
+            if (glfwGetWindowAttrib(window, GLFW_OPENGL_DEBUG_CONTEXT))
                 printf(" debug");
             if (glfwGetWindowAttrib(window, GLFW_CONTEXT_ROBUSTNESS) == GLFW_LOSE_CONTEXT_ON_RESET)
                 printf(" robustness");

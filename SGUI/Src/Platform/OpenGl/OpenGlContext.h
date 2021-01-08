@@ -1,19 +1,20 @@
 #pragma once
-#include "Renderer/GraphicsContext.h"
 
+#include "SGUI/Renderer/GraphicsContext.h"
 
 struct GLFWwindow;
 
-namespace SGUI
-{
-	class OpenGlContext :public GraphicsContext
+namespace SGUI {
+
+	class OpenGLContext : public GraphicsContext
 	{
 	public:
-		OpenGlContext(GLFWwindow* WindowHandle);
+		OpenGLContext(GLFWwindow* windowHandle);
 
-		void Init();
-		void SwapBuffers();
+		virtual void Init() override;
+		virtual void SwapBuffers() override;
 	private:
 		GLFWwindow* m_WindowHandle;
 	};
+
 }

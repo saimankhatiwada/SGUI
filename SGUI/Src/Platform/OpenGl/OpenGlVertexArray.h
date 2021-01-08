@@ -1,27 +1,28 @@
 #pragma once
-#include "Renderer/VertexArray.h"
 
-namespace SGUI
-{
-	class OpenGlVertexArray: public VertexArray
+#include "SGUI/Renderer/VertexArray.h"
+
+namespace SGUI {
+
+	class OpenGLVertexArray : public VertexArray
 	{
 	public:
-		OpenGlVertexArray();
+		OpenGLVertexArray();
+		virtual ~OpenGLVertexArray();
 
-		virtual ~OpenGlVertexArray();
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
 
-		void Bind() const;
-		void UnBind() const;
+		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
+		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
 
-		void AddVertexBuffer(const Ref<VertexBuffer>& vertexbuffer);
-		void SetIndexBuffer(const Ref<IndexBuffer>& indexbuffer);
-
-		const std::vector<Ref<VertexBuffer>>& GetVertexBuffer() const { return m_VertexBuffer; }
-		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
-
+		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
+		virtual const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 	private:
 		uint32_t m_RendererID;
-		std::vector<Ref<VertexBuffer>> m_VertexBuffer;
+		uint32_t m_VertexBufferIndex = 0;
+		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
 	};
+
 }

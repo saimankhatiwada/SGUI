@@ -1,160 +1,47 @@
-workspace"SGUI"
-  architecture "x64"
+include "./vendor/premake/premake_customization/solution_items.lua"
 
-  configurations
-  {
-  	  "Debug",
-	  "Release"
-  }
+workspace "SGUI"
+	architecture "x86_64"
+	startproject "Synthesia-Editor"
+
+	configurations
+	{
+		"Debug",
+		"Release",
+		"Dist"
+	}
+
+	solution_items
+	{
+		".editorconfig"
+	}
+
+	flags
+	{
+		"MultiProcessorCompile"
+	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
+-- Include directories relative to root folder (solution directory)
 IncludeDir = {}
-IncludeDir["GLFW"] = "SGUI/vendor/GLFW/include"
-IncludeDir["Glad"] = "SGUI/vendor/Glad/include"
-IncludeDir["ImGui"] = "SGUI/vendor/imgui"
-IncludeDir["glm"] = "SGUI/vendor/glm"
-IncludeDir["stb_image"] = "SGUI/vendor/stb_image"
+IncludeDir["GLFW"] = "%{wks.location}/SGUI/vendor/GLFW/include"
+IncludeDir["Glad"] = "%{wks.location}/SGUI/vendor/Glad/include"
+IncludeDir["ImGui"] = "%{wks.location}/SGUI/vendor/imgui"
+IncludeDir["glm"] = "%{wks.location}/SGUI/vendor/glm"
+IncludeDir["stb_image"] = "%{wks.location}/SGUI/vendor/stb_image"
+IncludeDir["entt"] = "%{wks.location}/SGUI/vendor/entt/include"
+IncludeDir["yaml_cpp"] = "%{wks.location}/SGUI/vendor/yaml-cpp/include"
+IncludeDir["ImGuizmo"] = "%{wks.location}/SGUI/vendor/ImGuizmo"
 
-include "SGUI/vendor/GLFW"
-include "SGUI/vendor/Glad"
-include "SGUI/vendor/imgui"
+group "Dependencies"
+	include "vendor/premake"
+	include "SGUI/vendor/GLFW"
+	include "SGUI/vendor/Glad"
+	include "SGUI/vendor/imgui"
+	include "SGUI/vendor/yaml-cpp"
+group ""
 
-
-project "SGUI"
-  location "SGUI"
-  kind "StaticLib"
-  language "C++"
-  cppdialect "C++17"
-  staticruntime "on"
-  systemversion "latest"
-
-  targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-  objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
-
-
-  files
-  {
-  	  "%{prj.name}/Src/**.h",
-	  "%{prj.name}/Src/**.cpp",
-      "%{prj.name}/vendor/glm/glm/**.hpp",
-      "%{prj.name}/vendor/glm/glm/**.inl",
-      "%{prj.name}/vendor/stb_image/**.cpp",
-      "%{prj.name}/vendor/stb_image/**.h"
-  }
-
-  includedirs
-  {
-      "%{prj.name}/Src",
-  	  "%{prj.name}/vendor/spdlog/include",
-	  "%{IncludeDir.GLFW}",
-      "%{IncludeDir.Glad}",
-      "%{IncludeDir.ImGui}",
-      "%{IncludeDir.glm}",
-      "%{IncludeDir.stb_image}"
-  }
-
-  links
-  {
-  	  "GLFW",
-      "Glad",
-      "ImGui",
-	  "opengl32.lib"
-  }
-
-  defines
-  {
-  	  "SG_PLATFORM_WINDOW",
-	  "SG_ENABLE_ASSERTS",
-      "GLFW_INCLUDE_NONE"
-  }
-
-  filter "configurations:Debug"
-    defines "SG_DEBUG"
-	symbols "on"
-   
-  filter "configurations:Release"
-    defines "SG_Release"
-	optimize  "on"
-
-project "Sandbox"
-   location "Sandbox"
-   kind "ConsoleApp"
-   language "C++"
-   cppdialect "C++17"
-   staticruntime "on"
-   systemversion "latest"
-
-   targetdir ("bin/" ..outputdir.. "/%{prj.name}")
-   objdir ("bin-int/" ..outputdir.. "/%{prj.name}")
-   
-   files
-   {
-       "%{prj.name}/Src/**.h",
-	   "%{prj.name}/Src/**.cpp"
-   }
-
-   includedirs
-   {
-       "SGUI/Src",
-	   "SGUI/vendor/spdlog/include",
-       "SGUI/vendor/imgui",
-       "%{IncludeDir.glm}"
-   }
-
-   links
-   {
-   	   "SGUI"
-   }
-
-   defines
-   {
-   	   "SG_PLATFORM_WINDOW"
-   }
-   filter "configurations:Debug"
-     defines "SG_DEBUG"
-	 symbols "on"
-   filter "configurations:Release"
-     defines "SG_Release"
-	 optimize  "on"
-
-
-project "Synthesia-Editor"
-   location "Synthesia-Editor"
-   kind "ConsoleApp"
-   language "C++"
-   cppdialect "C++17"
-   staticruntime "on"
-   systemversion "latest"
-
-   targetdir ("bin/" ..outputdir.. "/%{prj.name}")
-   objdir ("bin-int/" ..outputdir.. "/%{prj.name}")
-   
-   files
-   {
-       "%{prj.name}/Src/**.h",
-	   "%{prj.name}/Src/**.cpp"
-   }
-
-   includedirs
-   {
-       "SGUI/Src",
-	   "SGUI/vendor/spdlog/include",
-       "SGUI/vendor/imgui",
-       "%{IncludeDir.glm}"
-   }
-
-   links
-   {
-   	   "SGUI"
-   }
-
-   defines
-   {
-   	   "SG_PLATFORM_WINDOW"
-   }
-   filter "configurations:Debug"
-     defines "SG_DEBUG"
-	 symbols "on"
-   filter "configurations:Release"
-     defines "SG_Release"
-	 optimize  "on"
+include "SGUI"
+include "Sandbox"
+include "Synthesia-Editor"
