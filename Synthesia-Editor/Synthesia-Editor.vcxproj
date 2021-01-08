@@ -140,8 +140,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EditorLayer.cpp" />
-    <ClCompile Include="src\SynthesiaEditor.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
+    <ClCompile Include="src\SynthesiaEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SGUI\SGUI.vcxproj">
