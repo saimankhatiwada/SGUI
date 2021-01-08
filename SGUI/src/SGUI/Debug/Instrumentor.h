@@ -46,7 +46,7 @@ namespace SGUI {
 				// profiling output.
 				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 				{
-					HZ_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name);
+					SG_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name);
 				}
 				InternalEndSession();
 			}
@@ -61,7 +61,7 @@ namespace SGUI {
 			{
 				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 				{
-					HZ_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
+					SG_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
 				}
 			}
 		}

@@ -186,7 +186,7 @@ namespace SGUI {
 			return false;
 
 		std::string sceneName = data["Scene"].as<std::string>();
-		HZ_CORE_TRACE("Deserializing scene '{0}'", sceneName);
+		SG_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
 		auto entities = data["Entities"];
 		if (entities)
@@ -200,7 +200,7 @@ namespace SGUI {
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
 
-				HZ_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
+				SG_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
 				Entity deserializedEntity = m_Scene->CreateEntity(name);
 

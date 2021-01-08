@@ -71,12 +71,12 @@ namespace SGUI {
 			}
 			else
 			{
-				HZ_CORE_ERROR("Could not read from file '{0}'", filepath);
+				SG_CORE_ERROR("Could not read from file '{0}'", filepath);
 			}
 		}
 		else
 		{
-			HZ_CORE_ERROR("Could not open file '{0}'", filepath);
+			SG_CORE_ERROR("Could not open file '{0}'", filepath);
 		}
 
 		return result;
@@ -141,7 +141,7 @@ namespace SGUI {
 
 				glDeleteShader(shader);
 
-				HZ_CORE_ERROR("{0}", infoLog.data());
+				SG_CORE_ERROR("{0}", infoLog.data());
 				SG_CORE_ASSERT(false, "Shader compilation failure!");
 				break;
 			}
@@ -173,7 +173,7 @@ namespace SGUI {
 			for (auto id : glShaderIDs)
 				glDeleteShader(id);
 
-			HZ_CORE_ERROR("{0}", infoLog.data());
+			SG_CORE_ERROR("{0}", infoLog.data());
 			SG_CORE_ASSERT(false, "Shader link failure!");
 			return;
 		}

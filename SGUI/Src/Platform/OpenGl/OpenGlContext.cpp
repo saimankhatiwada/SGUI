@@ -3,6 +3,7 @@
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include "SGUI/Core/Assert.h"
 
 namespace SGUI {
 
@@ -20,10 +21,10 @@ namespace SGUI {
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		SG_CORE_ASSERT(status, "Failed to initialize Glad!");
 
-		HZ_CORE_INFO("OpenGL Info:");
-		HZ_CORE_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
-		HZ_CORE_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
-		HZ_CORE_INFO("  Version: {0}", glGetString(GL_VERSION));
+		SG_CORE_INFO("OpenGL Info:");
+		SG_CORE_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
+		SG_CORE_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
+		SG_CORE_INFO("  Version: {0}", glGetString(GL_VERSION));
 
 		SG_CORE_ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "SGUI requires at least OpenGL version 4.5!");
 	}

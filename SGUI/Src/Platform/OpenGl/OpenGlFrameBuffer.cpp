@@ -65,7 +65,7 @@ namespace SGUI {
 	{
 		if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
 		{
-			HZ_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
+			SG_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
 			return;
 		}
 		m_Specification.Width = width;

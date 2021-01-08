@@ -6,16 +6,16 @@
 
 #ifdef SG_DEBUG
 	#if defined(SG_PLATFORM_WINDOWS)
-		#define HZ_DEBUGBREAK() __debugbreak()
+		#define SG_DEBUGBREAK() __debugbreak()
 	#elif defined(SG_PLATFORM_LINUX)
 		#include <signal.h>
-		#define HZ_DEBUGBREAK() raise(SIGTRAP)
+		#define SG_DEBUGBREAK() raise(SIGTRAP)
 	#else
 		#error "Platform doesn't support debugbreak yet!"
 	#endif
 	#define SG_ENABLE_ASSERTS
 #else
-	#define HZ_DEBUGBREAK()
+	#define SG_DEBUGBREAK()
 #endif
 
 #define SG_EXPAND_MACRO(x) x

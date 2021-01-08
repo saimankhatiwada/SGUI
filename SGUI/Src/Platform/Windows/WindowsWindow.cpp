@@ -17,7 +17,7 @@ namespace SGUI {
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		HZ_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
+		SG_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
@@ -42,7 +42,7 @@ namespace SGUI {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		HZ_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		SG_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (s_GLFWWindowCount == 0)
 		{
