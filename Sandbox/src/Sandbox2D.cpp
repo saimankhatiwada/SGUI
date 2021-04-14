@@ -31,7 +31,7 @@ void Sandbox2D::OnUpdate(SGUI::Timestep ts)
 	// Render
 	SGUI::Renderer2D::ResetStats();
 	{
-		HZ_PROFILE_SCOPE("Renderer Prep");
+		SG_PROFILE_SCOPE("Renderer Prep");
 		SGUI::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		SGUI::RenderCommand::Clear();
 	}
@@ -40,7 +40,7 @@ void Sandbox2D::OnUpdate(SGUI::Timestep ts)
 		static float rotation = 0.0f;
 		rotation += ts * 50.0f;
 
-		HZ_PROFILE_SCOPE("Renderer Draw");
+		SG_PROFILE_SCOPE("Renderer Draw");
 		SGUI::Renderer2D::BeginScene(m_CameraController.GetCamera());
 		SGUI::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, -45.0f, { 0.8f, 0.2f, 0.3f, 1.0f });
 		SGUI::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });

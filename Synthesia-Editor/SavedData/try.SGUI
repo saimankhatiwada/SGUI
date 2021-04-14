@@ -1,0 +1,11 @@
+Scene: Untitled
+Entities:
+  - Entity: 12837192831273
+    TagComponent:
+      Tag: square
+    TransformComponent:
+      Translation: [0.101734206, -0.0222663432, 0]
+      Rotation: [-2.47056882e-08, -0.440073162, 0.528420746]
+      Scale: [0.515999436, 1.63608086, 1]
+    SpriteRendererComponent:
+      Color: [0.478764474, 0.297610343, 0.297610343, 1]
